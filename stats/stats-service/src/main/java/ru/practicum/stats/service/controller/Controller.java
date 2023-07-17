@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.stats.service.dto.CreateStatDto;
-import ru.practicum.stats.service.dto.StatsHitDto;
+import ru.practicum.stats.dto.CreateStatDto;
+import ru.practicum.stats.dto.StatsHitDto;
 import ru.practicum.stats.service.service.StatService;
 
 import javax.validation.Valid;

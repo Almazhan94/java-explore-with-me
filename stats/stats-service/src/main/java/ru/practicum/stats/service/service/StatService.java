@@ -2,8 +2,9 @@ package ru.practicum.stats.service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.stats.service.dto.CreateStatDto;
-import ru.practicum.stats.service.dto.StatsHitDto;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.stats.dto.CreateStatDto;
+import ru.practicum.stats.dto.StatsHitDto;
 import ru.practicum.stats.service.model.Stat;
 import ru.practicum.stats.service.repository.StatRepository;
 
@@ -24,6 +25,7 @@ public class StatService {
         this.statRepository = statRepository;
     }
 
+    @Transactional
     public void createHit(CreateStatDto createStatDto) {
         Stat stat = new Stat();
         stat.setApp(createStatDto.getApp());
@@ -33,7 +35,7 @@ public class StatService {
         statRepository.save(stat);
     }
 
-
+    @Transactional(readOnly = true)
     public List<StatsHitDto> getStats(String start, String end, List<String> uris, Boolean unique) {
 
         LocalDateTime startTime = LocalDateTime.parse(start, formatter);
@@ -44,11 +46,15 @@ public class StatService {
         }
 
         if (uris != null && unique.equals(false)) {
-           statsHitDto = statRepository.findStatsWithUri(startTime, endTime, uris);
+            statsHitDto = statRepository.findStatsWithUri(startTime, endTime, uris);
         }
 
         if (uris != null && unique.equals(true)) {
             statsHitDto = statRepository.findStatsWithUriAndUniqueIp(startTime, endTime, uris);
+        }
+
+        if (uris == null && unique.equals(true)) {
+            statsHitDto = statRepository.findAllStatsUniqueIp(startTime, endTime);
         }
 
         return statsHitDto;

@@ -9,7 +9,6 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.stats.dto.CreateStatDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 public class StatsClient extends BaseClient {
@@ -29,7 +28,7 @@ public class StatsClient extends BaseClient {
         return post("/hit", createStatDto);
     }
 
-    public ResponseEntity<Object> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public ResponseEntity<Object> getStat(LocalDateTime start, LocalDateTime end, String uris, Boolean unique) {
         Map<String, Object> parameters = Map.of(
             "start", start,
             "end", end,

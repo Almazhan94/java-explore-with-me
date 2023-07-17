@@ -11,5 +11,5 @@ public class StatsHitDto {
 
     private String uri;
 
-    private Integer hits;
+    private long hits;
 }
