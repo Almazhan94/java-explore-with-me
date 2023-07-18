@@ -9,10 +9,14 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.stats.dto.CreateStatDto;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class StatsClient extends BaseClient {
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     public StatsClient(@Value("${stats-service.url}") String serverUrl, RestTemplateBuilder builder) {
@@ -28,11 +32,11 @@ public class StatsClient extends BaseClient {
         return post("/hit", createStatDto);
     }
 
-    public ResponseEntity<Object> getStat(LocalDateTime start, LocalDateTime end, String uris, Boolean unique) {
+    public ResponseEntity<Object> getStat(LocalDateTime start, LocalDateTime end, Collection<String> uris, Boolean unique) {
         Map<String, Object> parameters = Map.of(
-            "start", start,
-            "end", end,
-            "uris", uris,
+            "start", start.format(formatter),
+            "end", end.format(formatter),
+            "uris", String.join(",", uris),
             "unique", unique
         );
         return get("/stats", null, parameters);
