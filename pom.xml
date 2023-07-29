@@ -5,7 +5,8 @@
 
     <modules>
 		<module>stats</module>
-	</modules>
+        <module>main-service</module>
+    </modules>
 
     <parent>
 		<groupId>org.springframework.boot</groupId>
