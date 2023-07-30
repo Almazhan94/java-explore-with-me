@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.main.service.category.dto.CategoryDto;
 import ru.practicum.main.service.category.dto.NewCategoryDto;
+import ru.practicum.main.service.error.ObjectNotFoundException;
 
 import java.util.List;
 
@@ -27,14 +28,18 @@ public class CategoryService {
     }
 
     public CategoryDto updateCategory(int catId, NewCategoryDto newCategoryDto) {
+
         Category category = categoryRepository.findById(catId)
-            .orElseThrow(() -> new RuntimeException("Категория с Id = " + catId + " не найдена"));
+            .orElseThrow(() -> new ObjectNotFoundException("Категория с Id = " + catId + " не найдена"));
+
         category.setName(newCategoryDto.getName());
         categoryRepository.save(category);
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     public void deleteCategory(int catId) {
+        Category category = categoryRepository.findById(catId)
+            .orElseThrow(() -> new ObjectNotFoundException("Категория с Id = " + catId + " не найдена"));
         categoryRepository.deleteById(catId);
     }
 
@@ -47,8 +52,10 @@ public class CategoryService {
     }
 
     public CategoryDto getCategoryById(Integer catId) {
+
         Category category = categoryRepository.findById(catId)
-            .orElseThrow(() -> new RuntimeException("Категория с Id = " + catId + " не найдена"));
+            .orElseThrow(() -> new ObjectNotFoundException("Категория с Id = " + catId + " не найдена"));
+
         return CategoryMapper.toCategoryDto(category);
     }
 }

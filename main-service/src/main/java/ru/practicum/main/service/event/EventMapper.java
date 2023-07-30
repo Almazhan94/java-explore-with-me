@@ -20,7 +20,7 @@ public class EventMapper {
         eventFullDto.setId(event.getId());
         eventFullDto.setInitiator(UserMapper.toUserShortDto(user));
         eventFullDto.setAnnotation(event.getAnnotation());
-        eventFullDto.setCreatedOn(event.createdOn);
+        eventFullDto.setCreatedOn(event.getCreatedOn());
         eventFullDto.setCategory(CategoryMapper.toCategoryDto(event.getCategory()));
         eventFullDto.setDescription(event.getDescription());
         eventFullDto.setEventDate(event.getEventDate());

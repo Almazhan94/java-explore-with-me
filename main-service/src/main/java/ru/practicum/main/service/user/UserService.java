@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.main.service.error.ObjectNotFoundException;
 import ru.practicum.main.service.user.dto.CreateUserDto;
 import ru.practicum.main.service.user.dto.UserDto;
 
@@ -29,18 +29,9 @@ public class UserService {
         return UserMapper.toUserDto(user);
     }
 
-    public List<UserDto> findAllUser(Integer from, Integer size) {
-        return null;
-    }
-
-    public List<UserDto> findUserById(int userId, Integer from, Integer size) {
-        return null;
-    }
-
     public List<UserDto> find(List<Integer> ids, Integer from, Integer size) {
         List<UserDto> userDtoList;
-        int page = from / size;
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = pageRequest(from, size);
         if (ids == null) {
             Page<User> userPage = userRepository.findAll(pageable);
             List<User> userList = userPage.getContent();
@@ -53,11 +44,13 @@ public class UserService {
     }
 
     public void delete(int userId) {
-
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
+        userRepository.deleteById(userId);
     }
 
-    private Pageable pageRequest(Integer from, Integer size, Sort sort) {
+    private Pageable pageRequest(Integer from, Integer size) {
         int page = from / size;
-        return PageRequest.of(page, size, sort);
+        return PageRequest.of(page, size);
     }
 }

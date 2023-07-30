@@ -25,39 +25,39 @@ public class Event {
     @JoinColumn(name = "initiator_id", nullable = false)
     private User initiator;
 
-    String annotation;
+    private String annotation;
 
     @Column(name = "created_on")
-    LocalDateTime createdOn;
+    private LocalDateTime createdOn;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
-    Category category;
+    private Category category;
 
-    String description;
+    private String description;
 
     @Column(name = "event_date")
-    LocalDateTime eventDate;
+    private LocalDateTime eventDate;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "location_id", nullable = false)
-    Location location;
+    private Location location;
 
-    Boolean paid;           //Нужно ли оплачивать участие
+    private Boolean paid;           //Нужно ли оплачивать участие
 
     @Column(name = "participant_limit")
-    Integer participantLimit;
+    private Integer participantLimit;
 
     @Column(name = "published_on")
-    LocalDateTime publishedOn;
+    private LocalDateTime publishedOn;
 
     @Column(name = "request_moderation")
-    Boolean requestModeration;  // Если true, то все заявки будут ожидать подтверждения инициатором события. Если false
+    private Boolean requestModeration;  // Если true, то все заявки будут ожидать подтверждения инициатором события. Если false
                                 // - то будут подтверждаться автоматически.
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    State state;
+    private State state;
 
-    String title;
+    private String title;
 }

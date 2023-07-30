@@ -40,16 +40,15 @@ public class RequestController {
 
     @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
     @ResponseStatus(HttpStatus.OK)
-    public RequestDto patchRequest(@PathVariable int userId, @PathVariable int requestId){
+    public RequestDto patchRequest(@PathVariable int userId, @PathVariable int requestId) {
         log.info("Пользователь с userId = {} отменяет заявку на с requestId = {} участия в событии", userId, requestId);
         return requestService.patch(userId, requestId);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public RequestStatusUpdateResultDto patchRequestByUser(@PathVariable int userId, @PathVariable int eventId,
-                                                           @RequestBody RequestStatusUpdateDto requestStatusUpdateDto){
-        log.info("Пользователь с userId = {} изменяет статусы заявок для события с eventId = {}", userId, eventId);
+                                                           @RequestBody RequestStatusUpdateDto requestStatusUpdateDto) {
+        log.info("Пользователь с userId = {} изменяет статусы заявок для события с eventId = {} requestStatusUpdateDto = {}", userId, eventId, requestStatusUpdateDto);
         return requestService.patchByUser(userId, eventId, requestStatusUpdateDto);
     }
 

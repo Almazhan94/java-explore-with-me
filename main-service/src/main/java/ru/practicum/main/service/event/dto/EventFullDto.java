@@ -5,12 +5,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.main.service.category.Category;
 import ru.practicum.main.service.category.dto.CategoryDto;
 import ru.practicum.main.service.event.State;
-import ru.practicum.main.service.location.Location;
 import ru.practicum.main.service.location.LocationDto;
-import ru.practicum.main.service.user.User;
 import ru.practicum.main.service.user.dto.UserShortDto;
 
 import java.time.LocalDateTime;

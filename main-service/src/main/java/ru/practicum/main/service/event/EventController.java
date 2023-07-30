@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.main.service.error.RequestNotValidException;
 import ru.practicum.main.service.event.dto.*;
 import ru.practicum.stats.client.StatsClient;
 import ru.practicum.stats.dto.CreateStatDto;
@@ -36,11 +37,14 @@ public class EventController {
     @PostMapping("/users/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@PathVariable int userId, @RequestBody @Valid NewEventDto newEventDto) {
+
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             log.info("Обратите внимание: дата и время на которые намечено событие не может быть раньше, " +
                 "чем через два часа от текущего момента: {}", newEventDto.getEventDate());
-            throw new RuntimeException();
+            throw new RequestNotValidException("Обратите внимание: дата и время на которые намечено событие не может быть раньше, " +
+                "чем через два часа от текущего момента");
         }
+
         log.info("Добавляется событие {} пользователем с id = {}", newEventDto, userId);
         return eventService.createEvent(userId, newEventDto);
     }
@@ -48,7 +52,14 @@ public class EventController {
     @PatchMapping("/users/{userId}/events/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateEventByInitiator(@PathVariable int userId, @PathVariable int eventId,
-                                               @RequestBody UpdateEventUserRequest updateEventUserRequest) {
+                                               @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest) {
+
+        if (updateEventUserRequest.getEventDate() != null && updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now())) {
+            log.info("Обратите внимание: дата и время на которые намечено событие не может быть раньше текущего момента: {}", updateEventUserRequest.getEventDate());
+
+            throw new RequestNotValidException("Обратите внимание: дата и время на которые намечено событие не может быть раньше текущего момента");
+        }
+
         log.info("Пользователем с id = {} обновляет событие {} с id = {} ",userId, updateEventUserRequest, eventId);
         return eventService.updateEventByInitiator(userId, eventId, updateEventUserRequest);
     }
@@ -79,25 +90,30 @@ public class EventController {
                                                 @PositiveOrZero @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
                                                 @Positive @RequestParam(value = "size", required = false, defaultValue = "10") Integer size) {
         log.info("Админ ищет события  с параметрами поиска users = {}, states = {}, categories = {}, rangeStart = {}, rangeEnd = {}, from = {}, size = {}",
-            users , states, categories, rangeStart, rangeEnd, from, size);
+            users, states, categories, rangeStart, rangeEnd, from, size);
         return eventService.getEventFullByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/admin/events/{eventId}")
     @ResponseStatus(HttpStatus.OK)
-    public EventFullDto updateEventByAdmin( @PathVariable int eventId,  @RequestBody UpdateEventAdminDto updateEventAdminDto) {
+    public EventFullDto updateEventByAdmin(@PathVariable int eventId,  @RequestBody @Valid UpdateEventAdminDto updateEventAdminDto) {
+        if (updateEventAdminDto.getEventDate() != null && updateEventAdminDto.getEventDate().isBefore(LocalDateTime.now())) {
+            log.info("Обратите внимание: дата и время на которые намечено событие не может быть раньше текущего момента: {}", updateEventAdminDto.getEventDate());
+
+            throw new RequestNotValidException("Обратите внимание: дата и время на которые намечено событие не может быть раньше текущего момента");
+        }
         log.info("Админ обновляет событие с id = {}, UpdateEventAdminDto = {}  ", eventId, updateEventAdminDto);
         return eventService.updateEventByAdmin(eventId, updateEventAdminDto);
     }
 
     @GetMapping("/events")
     @ResponseStatus(HttpStatus.OK)
-    public List<EventFullDto> getEventFullWithFilter( HttpServletRequest request,
+    public List<EventFullDto> getEventFullWithFilter(HttpServletRequest request,
                                                       @RequestParam(value = "text", required = false) String text,
                                                      @RequestParam(value = "categories", required = false) List<Integer> categories,
                                                      @RequestParam(value = "paid", required = false) Boolean paid,
-                                                     @RequestParam(value = "rangeStart", required = false, defaultValue = "") String rangeStart,
-                                                     @RequestParam(value = "rangeEnd", required = false, defaultValue = "") String rangeEnd,
+                                                     @RequestParam(value = "rangeStart", required = false) String rangeStart,
+                                                     @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
                                                      @RequestParam(value = "onlyAvailable", required = false, defaultValue = "false") Boolean onlyAvailable,
                                                      @RequestParam(value = "sort", required = false) String sort,
                                                      @PositiveOrZero @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
@@ -105,10 +121,10 @@ public class EventController {
 
         log.info("Получение событий  с параметрами поиска text = {}, categories = {}, paid = {}, rangeStart = {}, rangeEnd = {},  " +
                 "onlyAvailable = {}, from = {}, sort = {}, size = {}",
-            text , categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+            text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
-        statsClient.addStat(new CreateStatDto("main-service", "/events", request.getRemoteAddr(), LocalDateTime.now()));
-        return eventService.getEventFullWithFilter(text , categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+       statsClient.addStat(new CreateStatDto("main-service", "/events", request.getRemoteAddr(), LocalDateTime.now()));
+        return eventService.getEventFullWithFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/events/{eventId}")

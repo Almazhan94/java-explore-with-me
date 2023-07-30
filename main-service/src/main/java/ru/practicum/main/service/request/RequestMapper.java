@@ -7,7 +7,7 @@ import java.util.List;
 
 public class RequestMapper {
 
-    public static RequestDto toRequestDto(Request request){
+    public static RequestDto toRequestDto(Request request) {
         return new RequestDto(request.getId(),
             request.getRequester().getId(),
             request.getEvent().getId(),
@@ -15,7 +15,7 @@ public class RequestMapper {
             request.getCreated());
     }
 
-    public static List<RequestDto> toRequestDtoList(List <Request> requestList) {
+    public static List<RequestDto> toRequestDtoList(List<Request> requestList) {
         List<RequestDto> requestDtoList = new ArrayList<>();
         for (Request request : requestList) {
             requestDtoList.add(RequestMapper.toRequestDto(request));

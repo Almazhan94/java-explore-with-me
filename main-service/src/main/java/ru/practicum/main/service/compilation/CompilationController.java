@@ -8,15 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.service.compilation.dto.CompilationDto;
 import ru.practicum.main.service.compilation.dto.NewCompilationDto;
 import ru.practicum.main.service.compilation.dto.UpdateCompilationDto;
-import ru.practicum.main.service.event.dto.EventFullDto;
-import ru.practicum.main.service.event.dto.NewEventDto;
-import ru.practicum.main.service.event.dto.UpdateEventUserRequest;
-import ru.practicum.main.service.user.dto.UserDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -41,8 +36,7 @@ public class CompilationController {
 
     @PatchMapping("/admin/compilations/{compId}")
     @ResponseStatus(HttpStatus.OK)
-    public CompilationDto updateCompilation(@PathVariable int compId, @RequestBody
-    UpdateCompilationDto updateCompilationDto) {
+    public CompilationDto updateCompilation(@PathVariable int compId, @RequestBody @Valid UpdateCompilationDto updateCompilationDto) {
         log.info("Админ обновляет подборку событий c compId = {} updateCompilationDto = {}",compId, updateCompilationDto);
         return compilationService.updateCompilation(compId, updateCompilationDto);
     }

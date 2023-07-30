@@ -1,9 +1,7 @@
 package ru.practicum.main.service.compilation;
 
 import ru.practicum.main.service.compilation.dto.CompilationDto;
-import ru.practicum.main.service.event.Event;
 import ru.practicum.main.service.event.EventMapper;
-import ru.practicum.main.service.event.dto.EventShortDto;
 import ru.practicum.stats.dto.StatsHitDto;
 
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ import java.util.List;
 
 public class CompilationMapper {
 
-    public static CompilationDto toCompilationDto (Compilation compilation, List<StatsHitDto> stat) {
+    public static CompilationDto toCompilationDto(Compilation compilation, List<StatsHitDto> stat) {
         CompilationDto compilationDto = new CompilationDto();
         compilationDto.setId(compilation.getId());
         compilationDto.setEvents(new HashSet<>(EventMapper.toEventShortDtoList(new ArrayList<>(compilation.getEventSet()), stat)));

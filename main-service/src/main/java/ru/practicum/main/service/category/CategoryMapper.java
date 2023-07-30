@@ -7,13 +7,13 @@ import java.util.List;
 
 public class CategoryMapper {
 
-    public static CategoryDto toCategoryDto(Category category){
+    public static CategoryDto toCategoryDto(Category category) {
         return new CategoryDto(category.getId(), category.getName());
     }
 
-    public static List<CategoryDto> toCategoryDtoList(List<Category> categoryList){
+    public static List<CategoryDto> toCategoryDtoList(List<Category> categoryList) {
         List<CategoryDto> categoryDtoList = new ArrayList<>();
-        for (Category category : categoryList){
+        for (Category category : categoryList) {
             categoryDtoList.add(CategoryMapper.toCategoryDto(category));
         }
     return categoryDtoList;

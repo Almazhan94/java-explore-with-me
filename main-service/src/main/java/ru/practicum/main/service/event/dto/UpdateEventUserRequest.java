@@ -9,6 +9,7 @@ import ru.practicum.main.service.location.LocationDto;
 
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

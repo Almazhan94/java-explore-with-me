@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"ru.practicum.main.service", "ru.practicum.stats.client"} )
+@ComponentScan(basePackages = {"ru.practicum.main.service", "ru.practicum.stats.client"})
 public class MainService {
     public static void main(String[] args) {
         SpringApplication.run(MainService.class, args);

@@ -16,17 +16,35 @@ services:
 
   stats-db:
     image: postgres:14-alpine
-    container_name: db-container
+    container_name: stats-db-container
     ports:
-      - "6541:5432"
+      - "6542:5432"
     environment:
       - POSTGRES_DB=stats-service
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
 
   ewm-service:
+    build: main-service
+    image:  main-service-image
+    container_name:  main-service-container
     ports:
       - "8080:8080"
-
+    depends_on:
+      - stats-service
+      -  ewm-db
+    environment:
+      - STATS_SERVICE_URL=http://stats-service:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/main-service
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
   ewm-db:
     image: postgres:14-alpine
+    container_name: ewm-db-container
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=main-service
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
