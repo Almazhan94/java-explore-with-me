@@ -1,6 +1,6 @@
 version: '3.1'
 services:
-  stats-service:
+  stats-server:
     build: stats/stats-service
     image: stats-service-image
     container_name: stats-service-container
@@ -31,10 +31,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - stats-service
+      - stats-server
       -  ewm-db
     environment:
-      - STATS_SERVICE_URL=http://stats-service:9090
+      - STATS_SERVICE_URL=http://stats-server:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/main-service
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
