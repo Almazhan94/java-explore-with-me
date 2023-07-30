@@ -2,6 +2,7 @@ package ru.practicum.stats.service.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.stats.dto.CreateStatDto;
@@ -25,6 +26,7 @@ public class Controller {
     }
 
     @PostMapping(path = "/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public void createHit(@RequestBody @Valid CreateStatDto createStatDto) {
         log.info("Сохранение информации в базу статистики: {}", createStatDto);
         statService.createHit(createStatDto);
