@@ -74,7 +74,7 @@ public class EventMapper {
         for (Event event : eventList) {
             if (!requestCountDtoList.isEmpty()) {
                 for (RequestCountDto requestCountDto : requestCountDtoList) {
-                    if (requestCountDto.getEventId() == event.getId()) {
+                    if (requestCountDto.getEventId().equals(event.getId())) {
                         eventFullDtoList.add(
                             EventMapper.toEventFullDto(event, event.getInitiator(), requestCountDto.getRequestCount(),
                                 0));

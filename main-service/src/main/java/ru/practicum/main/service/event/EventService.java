@@ -356,8 +356,9 @@ public class EventService {
             for (Event event : eventList) {
                 if (!requestCountDtoList.isEmpty()) {
                     for (RequestCountDto requestCountDto : requestCountDtoList) {
-                        if ((requestCountDto.getEventId() == event.getId())) {
-                            if (event.getParticipantLimit().equals(requestCountDto.getRequestCount())) {
+                        if ((requestCountDto.getEventId().equals(event.getId()))) {
+                            if (Objects.equals(event.getParticipantLimit().longValue(),
+                                requestCountDto.getRequestCount())) {
                                 eventList.remove(event);
                             }
                         }

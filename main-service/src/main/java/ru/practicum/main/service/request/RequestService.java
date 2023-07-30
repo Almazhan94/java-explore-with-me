@@ -145,7 +145,7 @@ public class RequestService {
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new ObjectNotFoundException("Событие с eventId = " + eventId + " не найдено"));
 
-        if (event.getInitiator().getId() != user.getId()) {
+        if (!event.getInitiator().getId().equals(user.getId())) {
             throw new RequestConflictException("пользователь не является владельцем события");
         }
         List<Request> requestList = requestRepository.findByEventId(eventId);
