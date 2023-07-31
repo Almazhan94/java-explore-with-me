@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS requests (
   event_id int NOT null REFERENCES events(id),
   status VARCHAR(10) NOT NULL,
   created timestamp without time zone not null default current_timestamp,
-  CONSTRAINT pk_request PRIMARY KEY (id)
+  CONSTRAINT pk_request PRIMARY KEY (id),
+  CONSTRAINT UQ_REQUESTS unique (requester_id, event_id)
 );
 
 CREATE TABLE IF NOT EXISTS compilations (
@@ -58,5 +59,6 @@ CREATE TABLE IF NOT EXISTS compilations (
 
 CREATE TABLE IF NOT EXISTS event_compilations (
   compilation_id int REFERENCES compilations(id),
-  event_id int REFERENCES events(id)
+  event_id int REFERENCES events(id),
+  CONSTRAINT PK_event_compilations PRIMARY KEY (compilation_id, event_id)
 );

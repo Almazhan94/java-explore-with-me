@@ -3,6 +3,7 @@ package ru.practicum.main.service.request;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.service.error.ObjectNotFoundException;
 import ru.practicum.main.service.error.RequestConflictException;
 import ru.practicum.main.service.event.Event;
@@ -36,6 +37,7 @@ public class RequestService {
         this.eventRepository = eventRepository;
     }
 
+    @Transactional
     public RequestDto createRequest(int userId, int eventId) {
         Request request = new Request();
         User user = userRepository.findById(userId)
@@ -72,6 +74,7 @@ public class RequestService {
         return RequestMapper.toRequestDto(createRequest);
     }
 
+    @Transactional(readOnly = true)
     public List<RequestDto> getRequests(int userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -80,6 +83,7 @@ public class RequestService {
         return RequestMapper.toRequestDtoList(requestList);
     }
 
+    @Transactional
     public RequestDto patch(int userId, int requestId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -91,6 +95,7 @@ public class RequestService {
         return RequestMapper.toRequestDto(requestRepository.save(request));
     }
 
+    @Transactional
     public RequestStatusUpdateResultDto patchByUser(int userId, int eventId, RequestStatusUpdateDto requestStatusUpdateDto) {
         List<RequestDto> confirmedRequests = new ArrayList<>();
         List<RequestDto> rejectedRequests = new ArrayList<>();
@@ -128,6 +133,7 @@ public class RequestService {
         return new RequestStatusUpdateResultDto(confirmedRequests, rejectedRequests);
     }
 
+    @Transactional(readOnly = true)
     public RequestCountDto getRequestCountDto(int eventId, RequestStatus status) {
         RequestCountDto requestCountDto = requestRepository.findRequestCountDtoByEventIdAndStatus(eventId, status);
         if (requestCountDto == null) {
@@ -137,6 +143,7 @@ public class RequestService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<RequestDto> getRequestsByUser(int userId, int eventId) {
         List<RequestDto> requestDtoList = new ArrayList<>();
         User user = userRepository.findById(userId)

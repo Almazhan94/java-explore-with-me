@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.service.category.dto.CategoryDto;
 import ru.practicum.main.service.category.dto.NewCategoryDto;
 import ru.practicum.main.service.error.ObjectNotFoundException;
@@ -21,12 +22,14 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    @Transactional
     public CategoryDto createNewCategory(NewCategoryDto newCategoryDto) {
         Category category = new Category();
         category.setName(newCategoryDto.getName());
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
+    @Transactional
     public CategoryDto updateCategory(int catId, NewCategoryDto newCategoryDto) {
 
         Category category = categoryRepository.findById(catId)
@@ -37,12 +40,14 @@ public class CategoryService {
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
+    @Transactional
     public void deleteCategory(int catId) {
         Category category = categoryRepository.findById(catId)
             .orElseThrow(() -> new ObjectNotFoundException("Категория с Id = " + catId + " не найдена"));
         categoryRepository.deleteById(catId);
     }
 
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategory(Integer from, Integer size) {
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size);
@@ -51,6 +56,7 @@ public class CategoryService {
         return CategoryMapper.toCategoryDtoList(categoryList);
     }
 
+    @Transactional(readOnly = true)
     public CategoryDto getCategoryById(Integer catId) {
 
         Category category = categoryRepository.findById(catId)

@@ -4,20 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.service.compilation.dto.CompilationDto;
 import ru.practicum.main.service.compilation.dto.NewCompilationDto;
 import ru.practicum.main.service.compilation.dto.UpdateCompilationDto;
 import ru.practicum.main.service.error.ObjectNotFoundException;
 import ru.practicum.main.service.event.Event;
+import ru.practicum.main.service.event.EventMapper;
 import ru.practicum.main.service.event.EventRepository;
 import ru.practicum.stats.client.StatsClient;
 import ru.practicum.stats.dto.StatsHitDto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class CompilationService {
@@ -36,6 +35,7 @@ public class CompilationService {
         this.statsClient = statsClient;
     }
 
+    @Transactional
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
         if (newCompilationDto.getEvents() == null) {
             newCompilationDto.setEvents(new HashSet<>());
@@ -49,31 +49,25 @@ public class CompilationService {
             compilation.setPinned(newCompilationDto.getPinned());
         }
         compilation.setTitle(newCompilationDto.getTitle());
-        compilationRepository.save(compilation);
+        Compilation saveCompilation = compilationRepository.save(compilation);
 
-        List<String> uriList = new ArrayList<>();
         if (newCompilationDto.getEvents().isEmpty()) {
-            return CompilationMapper.toCompilationDto(compilation, new ArrayList<>());
+            return CompilationMapper.toCompilationDto(saveCompilation, new ArrayList<>());
         }
 
-        for (Event e : eventList) {
-            uriList.add("/events/" + e.getId());
-        }
         List<StatsHitDto> stat = statsClient.getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
-            uriList, Boolean.TRUE);
+            EventMapper.toUriCollection(saveCompilation.getEventSet()), Boolean.TRUE);
 
         return CompilationMapper.toCompilationDto(compilation,stat);
     }
 
-
+    @Transactional
     public CompilationDto updateCompilation(int compId, UpdateCompilationDto updateCompilationDto) {
         Compilation compilation = compilationRepository.findById(compId)
             .orElseThrow(() -> new ObjectNotFoundException("Подборка с compId = " + compId + " не найден"));
 
-        List<Event> eventList = new ArrayList<>();
-
         if (updateCompilationDto.getEvents() != null) {
-            eventList = eventRepository.findAllById(updateCompilationDto.getEvents());
+            List<Event> eventList = eventRepository.findAllById(updateCompilationDto.getEvents());
             compilation.setEventSet(new HashSet<>(eventList));
         }
         if (updateCompilationDto.getPinned() != null) {
@@ -82,20 +76,15 @@ public class CompilationService {
         if (updateCompilationDto.getTitle() != null) {
             compilation.setTitle(updateCompilationDto.getTitle());
         }
-
         Compilation saveCompilation = compilationRepository.save(compilation);
 
-        List<String> uriList = new ArrayList<>();
-        for (Event e : saveCompilation.getEventSet()) {
-            uriList.add("/events/" + e.getId());
-        }
-
         List<StatsHitDto> stat = statsClient.getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
-            uriList, Boolean.TRUE);
+            EventMapper.toUriCollection(saveCompilation.getEventSet()), Boolean.TRUE);
 
         return CompilationMapper.toCompilationDto(saveCompilation, stat);
     }
 
+    @Transactional
     public void delete(int compId) {
 
         Compilation compilation = compilationRepository.findById(compId)
@@ -104,6 +93,7 @@ public class CompilationService {
         compilationRepository.delete(compilation);
     }
 
+    @Transactional(readOnly = true)
     public List<CompilationDto> findAll(Boolean pinned, Integer from, Integer size) {
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size);
@@ -114,36 +104,33 @@ public class CompilationService {
             compilationList = compilationRepository.findAll(pageable).getContent();
         }
 
-        Set<Integer> eventIdSet = new HashSet<>();
+        Set<Event> eventSet = new HashSet<>();
         for (Compilation c : compilationList) {
-            for (Event e : c.getEventSet()) {
-                eventIdSet.add(e.getId());
-            }
+            eventSet.addAll(c.getEventSet());
         }
 
-        List<String> uriList = new ArrayList<>();
-        for (Integer id : eventIdSet) {
-            uriList.add("/events/" + id);
-        }
-         List<StatsHitDto> stat = statsClient.getStat(LocalDateTime.now().minusYears(20),
-            LocalDateTime.now().plusYears(100),
-             uriList, Boolean.FALSE);
+        List<StatsHitDto> stat = statsClient.getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
+            EventMapper.toUriCollection(eventSet), Boolean.FALSE);
 
         return CompilationMapper.toCompilationDtoList(compilationList, stat);
     }
 
+    @Transactional(readOnly = true)
     public CompilationDto getCompilationById(int compId) {
         Compilation compilation = compilationRepository.findById(compId)
             .orElseThrow(() -> new ObjectNotFoundException("Подборка с compId = " + compId + " не найден"));
 
-        List<String> uriList = new ArrayList<>();
-        for (Event e : compilation.getEventSet()) {
-            uriList.add("/events/" + e.getId());
-        }
-
         List<StatsHitDto> stat = statsClient.getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
-            uriList, Boolean.TRUE);
+            EventMapper.toUriCollection(compilation.getEventSet()), Boolean.TRUE);
 
         return CompilationMapper.toCompilationDto(compilation, stat);
+    }
+
+    public static Collection<String> toUriCollection(Collection<Event> eventCollection) {
+        List<String> uriList = new ArrayList<>();
+        for (Event e : eventCollection) {
+            uriList.add("/events/".concat(e.getId().toString()));
+        }
+        return uriList;
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.service.category.Category;
 import ru.practicum.main.service.category.CategoryRepository;
 import ru.practicum.main.service.error.ObjectNotFoundException;
@@ -52,6 +53,7 @@ public class EventService {
         this.statsClient = statsClient;
     }
 
+    @Transactional
     public EventFullDto createEvent(int userId, NewEventDto newEventDto) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -95,6 +97,7 @@ public class EventService {
         return EventMapper.toEventFullDto(event, user, 0, 0);
     }
 
+    @Transactional
     public Location saveNewLocation(LocationDto locationDto) {
         Location location = new Location();
         location.setLat(locationDto.getLat());
@@ -102,6 +105,7 @@ public class EventService {
         return locationRepository.save(location);
     }
 
+    @Transactional
     public EventFullDto updateEventByInitiator(int userId, int eventId, UpdateEventUserRequest updateEventUserRequest) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -155,10 +159,10 @@ public class EventService {
             event.setRequestModeration(updateEventUserRequest.getRequestModeration());
         }
 
-        if (updateEventUserRequest.getStateAction() != null && updateEventUserRequest.getStateAction().equals(StateAction.SEND_TO_REVIEW)) {
+        if (updateEventUserRequest.getStateAction() == StateAction.SEND_TO_REVIEW) {
             event.setState(State.PENDING);
         }
-        if (updateEventUserRequest.getStateAction() != null && updateEventUserRequest.getStateAction().equals(StateAction.CANCEL_REVIEW)) {
+        if (updateEventUserRequest.getStateAction() == StateAction.CANCEL_REVIEW) {
             event.setState(State.CANCELED);
         }
 
@@ -180,6 +184,7 @@ public class EventService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEventShortListByInitiator(int userId, Integer from, Integer size) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -188,19 +193,15 @@ public class EventService {
         List<EventShortDto> eventShortDtoList = new ArrayList<>();
         List<Event> eventList = eventRepository.findByInitiatorId(userId, pageable);
 
-        List<String> uriList = new ArrayList<>();
-        for (Event e : eventList) {
-            uriList.add("/events/" + e.getId());
-        }
-
         List<StatsHitDto> stat = getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
-            uriList, Boolean.TRUE);
+            EventMapper.toUriCollection(eventList), Boolean.TRUE);
 
         eventShortDtoList = EventMapper.toEventShortDtoList(eventList, stat);
 
         return eventShortDtoList;
     }
 
+    @Transactional(readOnly = true)
     public EventFullDto getEventFullByInitiator(int userId, int eventId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -221,6 +222,7 @@ public class EventService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEventFullByAdmin(List<Integer> users, List<String> states, List<Integer> categories,
                                                   String rangeStart, String rangeEnd, Integer from, Integer size) {
         List<EventFullDto> eventFullDtoList = new ArrayList<>();
@@ -250,18 +252,14 @@ public class EventService {
         List<RequestCountDto> requestCountDtoList =
             requestRepository.findRequestCountDtoListByEventId(eventIdList, RequestStatus.CONFIRMED);
 
-        List<String> uriList = new ArrayList<>();
-        for (Event e : eventList) {
-            uriList.add("/events/" + e.getId());
-        }
-
         List<StatsHitDto> stat = getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
-            uriList, Boolean.TRUE);
+            EventMapper.toUriCollection(eventList), Boolean.TRUE);
 
         eventFullDtoList = EventMapper.toEventFullDtoList(eventList, requestCountDtoList, stat);
         return eventFullDtoList;
     }
 
+    @Transactional
     public EventFullDto updateEventByAdmin(int eventId, UpdateEventAdminDto updateEventAdminDto) {
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new ObjectNotFoundException("Событие с eventId = " + eventId + " не найдено"));
@@ -326,6 +324,7 @@ public class EventService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<EventFullDto> getEventFullWithFilter(String text, List<Integer> categories, Boolean paid,
                                                      String rangeStart, String rangeEnd, Boolean onlyAvailable,
                                                      String sort, Integer from, Integer size) {
@@ -333,7 +332,7 @@ public class EventService {
         List<EventFullDto> eventFullDtoList = new ArrayList<>();
         int page = from / size;
         Pageable pageable = PageRequest.of(page, size);
-        if (rangeStart == null && rangeEnd == null) {
+        if (rangeStart == null || rangeEnd == null) {
             eventList = eventRepository.findByTextCategoriesPaidEventDateAfter(text, categories, paid,
                 LocalDateTime.now(), pageable);
         } else {
@@ -366,34 +365,29 @@ public class EventService {
                 }
             }
         }
-
-        List<String> uriList = new ArrayList<>();
-        for (Event e : eventList) {
-            uriList.add("/events/" + e.getId());
-        }
-
         List<StatsHitDto> stat  = getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
-            uriList, Boolean.TRUE);
+            EventMapper.toUriCollection(eventList), Boolean.TRUE);
 
         if (sort != null) {
             if (sort.equals("EVENT_DATE")) {
                 eventFullDtoList = EventMapper.toEventFullDtoList(eventList, requestCountDtoList, stat);
-                return eventFullDtoList = eventFullDtoList
+                return eventFullDtoList
                     .stream()
-                    .sorted(Comparator.comparing(event -> event.getEventDate()))
+                    .sorted(Comparator.comparing(EventFullDto::getEventDate))
                     .collect(Collectors.toList());
 
             } else if (sort.equals("VIEWS")) {
                 eventFullDtoList = EventMapper.toEventFullDtoList(eventList, requestCountDtoList, stat);
-                return eventFullDtoList = eventFullDtoList
+                return eventFullDtoList
                     .stream()
-                    .sorted(Comparator.comparingLong(eventFullDto -> eventFullDto.getViews()))
+                    .sorted(Comparator.comparingLong(EventFullDto::getViews))
                     .collect(Collectors.toList());
             }
         }
         return  EventMapper.toEventFullDtoList(eventList, requestCountDtoList, stat);
     }
 
+    @Transactional(readOnly = true)
     public RequestCountDto getRequestCountDto(int eventId, RequestStatus status) {
         RequestCountDto requestCountDto = requestRepository.findRequestCountDtoByEventIdAndStatus(eventId, status);
         if (requestCountDto == null) {
@@ -403,10 +397,12 @@ public class EventService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<StatsHitDto> getStat(LocalDateTime start, LocalDateTime end, Collection<String> uris, Boolean unique) {
         return statsClient.getStat(start, end, uris, unique);
     }
 
+    @Transactional(readOnly = true)
     public EventFullDto getEventFullById(int eventId) {
 
         Event event = eventRepository.findByIdAndState(eventId, State.PUBLISHED)
@@ -416,7 +412,6 @@ public class EventService {
 
         List<StatsHitDto> stat  = getStat(LocalDateTime.now().minusYears(20), LocalDateTime.now().plusYears(100),
             Collections.singleton("/events/" + eventId), Boolean.TRUE);
-
 
         if (stat.isEmpty()) {
             return EventMapper.toEventFullDto(event, event.getInitiator(),

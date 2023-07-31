@@ -63,8 +63,7 @@ public class BaseClient {
                 statServerResponse = rest.exchange(path, method, requestEntity, StatsHitDto[].class);
             }
         } catch (HttpStatusCodeException e) {
-            log.info(e.getMessage());
-            e.getStackTrace();
+            log.info(e.getMessage(), e);
             throw new RuntimeException();
         }
         return getPrepareGatewayResponse(statServerResponse);
