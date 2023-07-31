@@ -5,9 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.main.service.request.dto.RequestDto;
-import ru.practicum.main.service.request.dto.RequestStatusUpdateDto;
-import ru.practicum.main.service.request.dto.RequestStatusUpdateResultDto;
 
 import java.util.List;
 
@@ -37,7 +34,7 @@ public class CommentController {
         log.info("Пользователь с userId = {} обновляет комментарий с commentId = {} " +
             "для события с eventId = {} requestStatusUpdateDto = {}", userId, commentId, eventId, updateCommentDto);
 
-        return commentService.patchByUser( userId, commentId, eventId, updateCommentDto);
+        return commentService.patchByUser(userId, commentId, eventId, updateCommentDto);
     }
 
     @GetMapping("/users/{userId}/comment")
