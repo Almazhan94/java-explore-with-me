@@ -134,14 +134,13 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/:userId//comment/:commentId",
+					"raw": "{{baseUrl}}/users/:userId/comment/:commentId",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"users",
 						":userId",
-						"",
 						"comment",
 						":commentId"
 					],

@@ -27,14 +27,14 @@ public class CommentController {
         return commentService.addComment(userId, eventId, addCommentDto);
     }
 
-    @PatchMapping("/users/{userId}/events/{eventId}/comment/{commentId}")
-    public CommentDto patchRequestByUser(@PathVariable int userId, @PathVariable int eventId, @PathVariable int commentId,
+    @PatchMapping("/users/{userId}/comment/{commentId}")
+    public CommentDto patchRequestByUser(@PathVariable int userId, @PathVariable int commentId,
                                                            @RequestBody UpdateCommentDto updateCommentDto) {
 
         log.info("Пользователь с userId = {} обновляет комментарий с commentId = {} " +
-            "для события с eventId = {} requestStatusUpdateDto = {}", userId, commentId, eventId, updateCommentDto);
+            "для события requestStatusUpdateDto = {}", userId, commentId, updateCommentDto);
 
-        return commentService.patchByUser(userId, commentId, eventId, updateCommentDto);
+        return commentService.patchByUser(userId, commentId, updateCommentDto);
     }
 
     @GetMapping("/users/{userId}/comment")

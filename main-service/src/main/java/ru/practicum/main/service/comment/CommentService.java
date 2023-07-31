@@ -52,12 +52,9 @@ public class CommentService {
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-    public CommentDto patchByUser(int userId, int commentId, int eventId, UpdateCommentDto updateCommentDto) {
+    public CommentDto patchByUser(int userId, int commentId, UpdateCommentDto updateCommentDto) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
-
-        Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new ObjectNotFoundException("Событие с eventId = " + eventId + " не найдено"));
 
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new ObjectNotFoundException("Комментарий с commentId = " + commentId + " не найден"));
