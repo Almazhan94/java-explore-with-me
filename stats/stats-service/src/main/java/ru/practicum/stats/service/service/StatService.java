@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.stats.dto.CreateStatDto;
 import ru.practicum.stats.dto.StatsHitDto;
+import ru.practicum.stats.service.error.BadRequestException;
 import ru.practicum.stats.service.model.Stat;
 import ru.practicum.stats.service.repository.StatRepository;
 
@@ -40,6 +41,9 @@ public class StatService {
 
         LocalDateTime startTime = LocalDateTime.parse(start, formatter);
         LocalDateTime endTime = LocalDateTime.parse(end, formatter);
+        if (endTime.isBefore(startTime) || startTime.isEqual(endTime)) {
+            throw new BadRequestException("Обратите внимание: дата и время не корректны");
+        }
         List<StatsHitDto> statsHitDto = new ArrayList<>();
         if (uris == null && unique.equals(false)) {
             statsHitDto = statRepository.findAllStats(startTime, endTime);
