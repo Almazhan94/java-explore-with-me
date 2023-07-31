@@ -45,7 +45,7 @@ public class RequestController {
         return requestService.patch(userId, requestId);
     }
 
-    @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    @PatchMapping("/users/{userId}/requests")
     public RequestStatusUpdateResultDto patchRequestByUser(@PathVariable int userId, @PathVariable int eventId,
                                                            @RequestBody RequestStatusUpdateDto requestStatusUpdateDto) {
         log.info("Пользователь с userId = {} изменяет статусы заявок для события с eventId = {} requestStatusUpdateDto = {}", userId, eventId, requestStatusUpdateDto);
