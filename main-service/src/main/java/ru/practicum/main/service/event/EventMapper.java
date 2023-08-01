@@ -41,8 +41,8 @@ public class EventMapper {
 
     public static List<EventShortDto> toEventShortDtoList(List<Event> eventList, List<StatsHitDto> stat) {
         List<EventShortDto> eventShortDtoList = new ArrayList<>();
-        Map<String, StatsHitDto> statsMap = stat.stream()
-            .collect(Collectors.toMap(StatsHitDto::getUri, statsHitDto -> statsHitDto));
+        Map<String, Long> statsMap = stat.stream()
+            .collect(Collectors.toMap(StatsHitDto::getUri, StatsHitDto::getHits));
 
         for (Event event : eventList) {
             EventShortDto eventShortDto = new EventShortDto();
@@ -53,21 +53,15 @@ public class EventMapper {
             eventShortDto.setEventDate(event.getEventDate());
             eventShortDto.setPaid(event.getPaid());
             eventShortDto.setParticipantLimit(event.getParticipantLimit());
-            eventShortDto.setPublishedOn(event.getPublishedOn());             //Публикует Админ
+            eventShortDto.setPublishedOn(event.getPublishedOn());
             eventShortDto.setRequestModeration(event.getRequestModeration());
             eventShortDto.setTitle(event.getTitle());
-            //eventShortDto.setViews(views);
             eventShortDtoList.add(eventShortDto);
         }
+
         for (EventShortDto eventShortDto : eventShortDtoList) {
-            if (!statsMap.isEmpty()) {
-                String uri = "/events/" + eventShortDto.getId();
-                if (statsMap.containsKey(uri)) {
-                    eventShortDto.setViews(statsMap.get(uri).getHits());
-                }
-            } else {
-                eventShortDto.setViews(0L);
-            }
+            String uri = "/events/" + eventShortDto.getId();
+            eventShortDto.setViews(statsMap.getOrDefault(uri, 0L));
         }
         return eventShortDtoList;
     }
@@ -78,31 +72,19 @@ public class EventMapper {
         Map<Integer, Long> requestCountDtoMap = requestCountDtoList.stream()
                 .collect(Collectors.toMap(RequestCountDto::getEventId, RequestCountDto::getRequestCount));
 
-        Map<String, StatsHitDto> statsMap = stat.stream()
-            .collect(Collectors.toMap(StatsHitDto::getUri, statsHitDto -> statsHitDto));
+        Map<String, Long> statsMap = stat.stream()
+            .collect(Collectors.toMap(StatsHitDto::getUri, StatsHitDto::getHits));
 
         List<EventFullDto> eventFullDtoList = new ArrayList<>();
 
         for (Event e : eventList) {
-            if (!requestCountDtoMap.isEmpty()) {
-                if (requestCountDtoMap.containsKey(e.getId())) {
-                    eventFullDtoList.add(EventMapper.toEventFullDto(e, e.getInitiator(),
-                        requestCountDtoMap.get(e.getId()), 0));
-                }
-            } else {
-                eventFullDtoList.add(EventMapper.toEventFullDto(e, e.getInitiator(), 0, 0));
-            }
+            eventFullDtoList.add(EventMapper.toEventFullDto(e, e.getInitiator(),
+                requestCountDtoMap.getOrDefault(e.getId(), 0L), 0));
         }
 
         for (EventFullDto eventFullDto : eventFullDtoList) {
-            if (!statsMap.isEmpty()) {
-                String uri = "/events/" + eventFullDto.getId();
-                if (statsMap.containsKey(uri)) {
-                    eventFullDto.setViews(statsMap.get(uri).getHits());
-                }
-            } else {
-                eventFullDto.setViews(0L);
-            }
+            String uri = "/events/" + eventFullDto.getId();
+            eventFullDto.setViews(statsMap.getOrDefault(uri, 0L));
         }
         return eventFullDtoList;
     }

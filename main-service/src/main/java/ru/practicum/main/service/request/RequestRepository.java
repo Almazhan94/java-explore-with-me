@@ -15,9 +15,6 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
         "order by count(r.id) desc")
     RequestCountDto findRequestCountDtoByEventId(int eventId);
 
-
-   // Request findByRequesterId(int userId);
-
     List<Request> findByRequesterId(int userId);
 
     List<Request> findByIdIn(List<Integer> requestIds);
@@ -42,4 +39,5 @@ public interface RequestRepository extends JpaRepository<Request, Integer> {
 
     List<RequestCountDto> findAllRequestCountDtoByEventIdInAndStatus(List<Integer> eventIdList, RequestStatus confirmed);
 
+    Request findByRequesterIdAndEventIdAndStatus(int userId, int eventId, RequestStatus status);
 }
