@@ -1,5 +1,7 @@
 package ru.practicum.main.service.comment;
 
+import ru.practicum.main.service.comment.dto.CommentDto;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class CommentMapper {
         commentDto.setText(comment.getText());
         commentDto.setAuthorName(comment.getAuthor().getName());
         commentDto.setCreated(comment.getCreated());
+        commentDto.setLastUpdatedOn(comment.getLastUpdatedOn());
         return commentDto;
     }
 

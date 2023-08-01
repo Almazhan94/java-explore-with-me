@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.main.service.comment.dto.AddCommentDto;
+import ru.practicum.main.service.comment.dto.CommentDto;
+import ru.practicum.main.service.comment.dto.UpdateCommentDto;
 
 import java.util.List;
 
@@ -22,7 +25,8 @@ public class CommentController {
     }
 
     @PostMapping("/users/{userId}/events/{eventId}/comment")
-    public CommentDto addComment(@PathVariable int userId,@PathVariable int eventId, @RequestBody AddCommentDto addCommentDto) {
+    public CommentDto addComment(@PathVariable int userId, @PathVariable int eventId, @RequestBody
+    AddCommentDto addCommentDto) {
         log.info("Добавляется комментарий: {}", addCommentDto);
         return commentService.addComment(userId, eventId, addCommentDto);
     }

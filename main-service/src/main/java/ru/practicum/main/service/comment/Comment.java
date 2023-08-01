@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import ru.practicum.main.service.event.Event;
 import ru.practicum.main.service.user.User;
 
@@ -19,19 +20,23 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
+    private Integer id;
 
-    String text;
+    private String text;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "event_id", nullable = false)
-    Event event;
+    private Event event;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "author_id", nullable = false)
-    User author;
+    private User author;
 
     @CreationTimestamp
-    LocalDateTime created;
+    private LocalDateTime created;
+
+    @UpdateTimestamp
+    @Column(name = "last_updated_on")
+    private LocalDateTime lastUpdatedOn;
 }
 

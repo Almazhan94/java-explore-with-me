@@ -53,10 +53,9 @@ public class EventMapper {
             eventShortDto.setEventDate(event.getEventDate());
             eventShortDto.setPaid(event.getPaid());
             eventShortDto.setParticipantLimit(event.getParticipantLimit());
-            eventShortDto.setPublishedOn(event.getPublishedOn());             //Публикует Админ
+            eventShortDto.setPublishedOn(event.getPublishedOn());
             eventShortDto.setRequestModeration(event.getRequestModeration());
             eventShortDto.setTitle(event.getTitle());
-            /**eventShortDto.setViews(views);  */              /** views добавляем следующим этапом ниже */
             eventShortDtoList.add(eventShortDto);
         }
 

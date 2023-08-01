@@ -2,6 +2,10 @@ package ru.practicum.main.service.comment;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.main.service.comment.dto.AddCommentDto;
+import ru.practicum.main.service.comment.dto.CommentDto;
+import ru.practicum.main.service.comment.dto.UpdateCommentDto;
 import ru.practicum.main.service.error.ObjectNotFoundException;
 import ru.practicum.main.service.event.Event;
 import ru.practicum.main.service.event.EventRepository;
@@ -33,6 +37,7 @@ public class CommentService {
         this.requestRepository = requestRepository;
     }
 
+    @Transactional
     public CommentDto addComment(int userId, int eventId, AddCommentDto addCommentDto) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -52,6 +57,7 @@ public class CommentService {
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
+    @Transactional
     public CommentDto patchByUser(int userId, int commentId, UpdateCommentDto updateCommentDto) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));
@@ -65,6 +71,7 @@ public class CommentService {
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
+    @Transactional(readOnly = true)
     public List<CommentDto> getComment(int userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("Пользователь с userId = " + userId + " не найден"));

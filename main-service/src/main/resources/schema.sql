@@ -69,5 +69,6 @@ CREATE TABLE IF NOT EXISTS comments (
   event_id int NOT null REFERENCES events(id),
   author_id int NOT null REFERENCES users(id),
   created timestamp without time zone not null default current_timestamp,
+  last_updated_on timestamp without time zone default current_timestamp,
   CONSTRAINT pk_comment PRIMARY KEY (id)
 );
